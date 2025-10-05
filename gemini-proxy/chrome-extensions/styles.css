@@ -1,0 +1,300 @@
+:root{
+  --gai-accent: #2dd4bf;
+  --gai-bg: #0f1113;
+  --gai-surface: #071015;
+  --gai-ghost: rgba(255,255,255,0.03);
+  --gai-text: #e6eef2;
+  --gai-muted: #9aa1a6;
+  --gai-positive-bg: #062b1f;
+  --gai-negative-bg: #041014;
+  --gai-radius: 12px;
+  --gai-shadow-lg: 0 16px 50px rgba(0,0,0,0.48);
+  --gai-shadow-md: 0 10px 30px rgba(0,0,0,0.35);
+  --gai-transition: 180ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* overlay/backdrops */
+.gai-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,10,12,0.36);
+  backdrop-filter: blur(4px) saturate(1.05);
+}
+
+/* Floating main button */
+#gai-floating-widget {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  z-index: 2147483646;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--gai-shadow-md);
+  background: var(--gai-accent);
+  transition: transform var(--gai-transition), box-shadow var(--gai-transition);
+}
+#gai-floating-widget:hover { transform: translateY(-50%) scale(1.03); box-shadow: 0 18px 48px rgba(0,0,0,0.48); }
+
+/* Left icon stack container */
+#gai-floating-left-icons {
+  position: fixed;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2147483646;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  pointer-events: auto;
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 200ms linear;
+  will-change: transform, opacity;
+}
+#gai-floating-left-icons.gai-lefticons-show { opacity: 1; transform: translateY(-50%) translateX(0); }
+#gai-floating-left-icons.gai-lefticons-hide { opacity: 0; transform: translateY(-50%) translateX(6px); }
+
+/* Individual icon wrapper (label + circular button) */
+.gai-icon-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 84px; /* slightly wider for more readable labels */
+  pointer-events: auto;
+  transform-origin: right center;
+}
+.gai-icon-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--gai-shadow-md);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.gai-icon-btn:hover { transform: translateX(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.5); }
+.gai-icon-label {
+  color: var(--gai-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  width: 84px;
+  letter-spacing: 0.1px;
+}
+
+/* Prompt box (draggable) */
+#gai-ai-prompt-box {
+  position: fixed;
+  z-index: 2147483649;
+  width: 480px;
+  border-radius: var(--gai-radius);
+  background: var(--gai-bg);
+  color: var(--gai-text);
+  box-shadow: var(--gai-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  font-family: Inter, Arial, sans-serif;
+  font-size: 13px;
+  transform-origin: center top;
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 160ms linear;
+  opacity: 1;
+}
+#gai-ai-prompt-box.gai-animate-in { animation: gai-pop-in 220ms cubic-bezier(.2,.9,.2,1); }
+@keyframes gai-pop-in {
+  0% { transform: scale(0.98) translateY(-6px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Header (drag handle) */
+#gai-ai-prompt-box .gai-header {
+  cursor: grab;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  border-bottom: 1px solid var(--gai-ghost);
+}
+#gai-ai-prompt-box .gai-header .gai-title {
+  font-weight: 700;
+  color: var(--gai-accent);
+  font-size: 13px;
+}
+
+/* Body */
+#gai-ai-prompt-box .gai-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--gai-surface);
+}
+
+/* selected preview area */
+#gai-ai-prompt-box .gai-selected {
+  padding: 10px;
+  background: linear-gradient(180deg, #061017, #07171a);
+  border-radius: 10px;
+  border: 1px solid var(--gai-ghost);
+  max-height: 140px;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--gai-text);
+  font-size: 13px;
+}
+
+/* input row */
+#gai-ai-prompt-box .gai-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.gai-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: #0b0d0f;
+  color: var(--gai-text);
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* send button */
+.gai-send-btn {
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 0;
+  background: linear-gradient(90deg, var(--gai-accent), #22c1c3);
+  color: var(--gai-negative-bg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--gai-transition), box-shadow var(--gai-transition);
+}
+.gai-send-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(34,193,195,0.12); }
+
+/* result / answer box: hidden by default until user sends */
+#gai-result {
+  display: none;
+  background: #f6f7f9;
+  color: #0b0d0f;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e1e4e8;
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+}
+
+/* Right chat panel */
+#gai-right-chat {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2147483647;
+  width: 380px;
+  max-height: 640px;
+  border-radius: 12px;
+  background: var(--gai-bg);
+  color: var(--gai-text);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--gai-shadow-lg);
+  font-family: Inter, Arial, sans-serif;
+}
+
+#gai-right-chat-area {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--gai-surface);
+}
+
+/* Chat messages */
+.gai-msg {
+  max-width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  line-height: 1.35;
+}
+
+.gai-msg.user {
+  align-self: flex-end;
+  background: var(--gai-positive-bg);
+  color: #bff1e8;
+  font-weight: 600;
+}
+
+.gai-msg.bot {
+  align-self: flex-start;
+  background: var(--gai-surface);
+  border: 1px solid rgba(255,255,255,0.03);
+  color: var(--gai-text);
+}
+
+/* Summary panel */
+#gai-summary-panel {
+  position: fixed;
+  right: 12px;
+  top: calc(50% + 64px);
+  transform: translateY(-50%);
+  z-index: 2147483647;
+  width: 360px;
+  max-height: 540px;
+  border-radius: 12px;
+  background: var(--gai-bg);
+  color: var(--gai-text);
+  box-shadow: var(--gai-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px;
+}
+
+/* focus states */
+button:focus, input:focus, select:focus {
+  outline: 2px solid rgba(45,212,191,0.16);
+  outline-offset: 2px;
+}
+
+/* small responsive tweaks */
+@media (max-width: 600px) {
+  #gai-ai-prompt-box { width: calc(100% - 24px); left: 12px !important; right: 12px !important; }
+  #gai-right-chat { width: calc(100% - 24px); right: 12px; left: 12px; transform: none; top: 12px; }
+  #gai-summary-panel { width: calc(100% - 24px); right: 12px; left: 12px; top: auto; bottom: 12px; transform: none; }
+}
+
+/* subtle utility - smoother scrollbars inside panels for modern look */
+#gai-ai-prompt-box .gai-selected::-webkit-scrollbar,
+#gai-right-chat-area::-webkit-scrollbar,
+#gai-summary-panel::-webkit-scrollbar,
+#gai-result::-webkit-scrollbar {
+  height: 8px; width: 8px;
+}
+#gai-ai-prompt-box .gai-selected::-webkit-scrollbar-thumb,
+#gai-right-chat-area::-webkit-scrollbar-thumb,
+#gai-summary-panel::-webkit-scrollbar-thumb,
+#gai-result::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+}

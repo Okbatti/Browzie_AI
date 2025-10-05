@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Gemini Translate Assistant",
+  "version": "1.0",
+  "description": "Highlight text, right-click → translate / ask Gemini (via your proxy).",
+  "permissions": ["contextMenus", "activeTab", "storage", "scripting"],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": { "48": "icon48.png" }
+}
