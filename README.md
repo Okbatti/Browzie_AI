@@ -1,6 +1,11 @@
 # 🌐 **Browzie — Smart Web Companion**  
 > 🧠 _Your all-in-one browser extension for Chat + Webpage Summaries + Instant Insights!_  
 
+**Browzie** is a smart browser extension that combines AI chat and webpage summarization into one seamless tool. 💡
+It lets users interact with web content effortlessly — you can ask questions, get concise summaries, and chat with an AI assistant without leaving the page. 
+🌐 Browzie enhances productivity by turning every webpage into an interactive, intelligent experience. 🚀
+In short: **Browse smarter, summarize faster, and chat effortlessly — all with Browzie!** 🧠✨
+
 ![Banner](https://img.shields.io/badge/Project-Browzie-blue?style=for-the-badge&logo=googlechrome)  
 ![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)  
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)  
