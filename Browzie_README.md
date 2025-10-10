@@ -80,4 +80,4 @@ node server.js
 ## 💫 **Enjoy Using Browzie!**
 > 🧠 Browse smarter. Summarize faster. Chat effortlessly.  
 
-Made with ❤️ by **Owais Ali**  
+Made with ❤️ by **Owais Batti & Parth Patil**  
