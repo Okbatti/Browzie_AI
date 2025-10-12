@@ -139,7 +139,7 @@ function createPromptBox(x, y, selectedText) {
   header.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
 
   const title = document.createElement('div');
-  title.textContent = 'Gemini Assistant';
+  title.textContent = 'Browzie Assistant';
   title.style.fontWeight = '700';
   title.style.color = '#2dd4bf';
   title.style.fontSize = '13px';
@@ -554,7 +554,7 @@ function openRightChatBox() {
     borderBottom: '1px solid rgba(255,255,255,0.02)'
   });
   const title = document.createElement('div');
-  title.textContent = 'Gemini Chat';
+  title.textContent = 'Browzie Chat';
   title.style.fontWeight = '700';
   title.style.color = '#a6fff0';
   title.style.fontSize = '14px';
