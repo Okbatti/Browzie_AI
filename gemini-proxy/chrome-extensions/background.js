@@ -1,6 +1,6 @@
 // background.js
 // Enhanced: notifies content scripts when generation starts/finishes and supports aborting outstanding requests.
-//
+//..
 // Original file used as base for edits. See original for older behavior. :contentReference[oaicite:1]{index=1}
 
 // Map to track active fetch AbortControllers per tabId
