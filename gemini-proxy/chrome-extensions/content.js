@@ -1,8 +1,8 @@
-// === content.js (UI-improved) ===
+// === content.js (UI-improved + suggestions for selected words; click-to-send enabled) ===
 // Kept existing functionality, added nicer animations, overlay/backdrop, keyboard shortcuts (Esc), smoother icon drop,
-// improved responsive placement for left icon stack, prompt box open/close animation, and small accessibility tweaks.
-//
-// IMPORTANT: This file assumes the CSS below (styles.css) is present and loaded by your extension.
+// improved responsive placement for left icon stack, prompt box open/close animation, small accessibility tweaks,
+// AND: added "Suggested questions" based on the highlighted/selected word.
+// CHANGE: clicking a suggested question now triggers an immediate request (single-click sends).
 
 function getMetaContent(name) {
   const el = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
@@ -86,6 +86,112 @@ function getPageContext() {
     headings, topLinks, wordCount: words,
     mainTextSnippet, selectedText
   };
+}
+
+// ---------- Utility: produce suggestions for a selected word ----------
+function extractQuestionsFromPageForWord(word, pageText) {
+  // Return an array of question strings (already trimmed) that mention the word.
+  if (!word || !pageText) return [];
+
+  const w = word.trim().toLowerCase();
+  // match segments that end with a '?' (capture the whole sentence up to '?')
+  const questionRegex = /[^?!.]*\?+/g;
+  const matches = pageText.match(questionRegex) || [];
+  const filtered = matches
+    .map(s => s.trim())
+    .filter(s => s.length > 3 && s.toLowerCase().includes(w));
+
+  // Normalize whitespace and dedupe with counts
+  const counts = new Map();
+  for (let q of filtered) {
+    const normalized = q.replace(/\s+/g, ' ').trim();
+    counts.set(normalized, (counts.get(normalized) || 0) + 1);
+  }
+
+  // Sort by frequency and length (pref shorter clearer questions)
+  return Array.from(counts.entries())
+    .sort((a, b) => {
+      if (b[1] !== a[1]) return b[1] - a[1];
+      return a[0].length - b[0].length;
+    })
+    .map(e => e[0]);
+}
+
+function makeDefaultTemplatesForWord(word) {
+  const safe = (word || '').trim();
+  if (!safe) return [];
+  return [
+    `What is ${safe}?`,
+    `How does ${safe} work?`,
+    `Why is ${safe} important?`
+  ];
+}
+
+// Renders suggestion chips/buttons inside a container element.
+// CLICK behavior updated: single click now immediately sends the suggestion (via sendCallback).
+function renderSuggestions(container, suggestions, inputElement, sendCallback) {
+  // clear existing suggestions area
+  container.innerHTML = '';
+  if (!suggestions || suggestions.length === 0) return;
+
+  const label = document.createElement('div');
+  label.style.fontSize = '12px';
+  label.style.color = '#9ee6cf';
+  label.style.marginBottom = '6px';
+  label.textContent = 'Suggested questions';
+  container.appendChild(label);
+
+  const wrap = document.createElement('div');
+  wrap.style.display = 'flex';
+  wrap.style.flexWrap = 'wrap';
+  wrap.style.gap = '8px';
+
+  suggestions.slice(0, 3).forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'gai-suggestion-btn';
+    btn.textContent = s;
+    Object.assign(btn.style, {
+      padding: '6px 10px',
+      borderRadius: '999px',
+      background: '#06191a',
+      color: '#dffbf6',
+      border: '1px solid rgba(255,255,255,0.04)',
+      cursor: 'pointer',
+      fontSize: '13px',
+      maxWidth: '100%',
+      whiteSpace: 'normal',
+      textAlign: 'left'
+    });
+
+    // NEW: single click now fills input AND sends immediately
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (inputElement) {
+        inputElement.value = s;
+        inputElement.focus();
+      }
+      // call the provided sendCallback (if available) so the message is sent immediately
+      if (typeof sendCallback === 'function') {
+        try { sendCallback(); } catch (err) { console.warn('sendCallback error', err); }
+      }
+    });
+
+    // keep dblclick for fallback (also sends)
+    btn.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      if (inputElement) {
+        inputElement.value = s;
+        inputElement.focus();
+      }
+      if (typeof sendCallback === 'function') {
+        try { sendCallback(); } catch (err) { console.warn('sendCallback error', err); }
+      }
+    });
+
+    wrap.appendChild(btn);
+  });
+
+  container.appendChild(wrap);
 }
 
 // ---------- Prompt box (draggable + responsive + animated) ----------
@@ -185,6 +291,11 @@ function createPromptBox(x, y, selectedText) {
   selWrap.id = 'gai-selected';
   selWrap.innerText = safeSelected || '(no selection)';
 
+  // suggestions container (new)
+  const suggestionsContainer = document.createElement('div');
+  suggestionsContainer.id = 'gai-suggestions';
+  suggestionsContainer.style.marginTop = '6px';
+
   const inputRow = document.createElement('div');
   inputRow.className = 'gai-input-row';
   inputRow.style.display = 'flex';
@@ -229,10 +340,36 @@ function createPromptBox(x, y, selectedText) {
   });
 
   body.appendChild(selWrap);
+  body.appendChild(suggestionsContainer); // add suggestions under selection
   body.appendChild(inputRow);
   body.appendChild(result);
   box.appendChild(body);
   document.body.appendChild(box);
+
+  // Populate suggestions based on selectedText
+  try {
+    const pageContext = getPageContext();
+    const pageText = pageContext.mainTextSnippet || document.body.innerText || '';
+    let suggestions = [];
+    if (selectedText && selectedText.trim().length > 0) {
+      // if selection is multiple words, prioritize the single highlighted word if user selected one word
+      const selWord = selectedText.trim().split(/\s+/)[0];
+      suggestions = extractQuestionsFromPageForWord(selWord, pageText);
+      if (!suggestions || suggestions.length === 0) {
+        suggestions = makeDefaultTemplatesForWord(selWord);
+      }
+    } else {
+      // no selection -> show top generic templates from page title / headings
+      const title = pageContext.title || '';
+      const titleWord = (title.split(/\s+/)[0] || '').replace(/[^\w\-]/g, '');
+      if (titleWord) suggestions = makeDefaultTemplatesForWord(titleWord);
+    }
+    // pass a sendCallback which triggers the sendBtn click (so renderSuggestions can call it)
+    renderSuggestions(suggestionsContainer, suggestions.slice(0,3), input, () => sendBtn.click());
+  } catch (e) {
+    // ignore suggestion generation errors
+    console.warn('Suggestion generation error', e);
+  }
 
   makeElementDraggable(box, header);
 
@@ -343,7 +480,7 @@ function makeElementDraggable(el, handle) {
     if (!isDragging) return;
     const t = e.touches[0];
     const dx = t.clientX - startX;
-    const dy = t.clientY - startY;
+    const dy = t.touches[0].clientY - startY;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     let newLeft = Math.max(8, Math.min(origLeft + dx, vw - el.offsetWidth - 8));
@@ -572,6 +709,21 @@ function openRightChatBox() {
   });
   cont.appendChild(chatArea);
 
+  // suggestions in chat (if selection exists)
+  const selection = (window.getSelection && window.getSelection().toString()) || '';
+  const suggestionsPanel = document.createElement('div');
+  suggestionsPanel.id = 'gai-chat-suggestions';
+  suggestionsPanel.style.padding = '8px 12px 0 12px';
+  if (selection && selection.trim().length > 0) {
+    const pageContext = getPageContext();
+    const pageText = pageContext.mainTextSnippet || document.body.innerText || '';
+    const selWord = selection.trim().split(/\s+/)[0];
+    const suggs = extractQuestionsFromPageForWord(selWord, pageText);
+    const final = (suggs && suggs.length) ? suggs.slice(0,3) : makeDefaultTemplatesForWord(selWord);
+    // we'll render after input creation (we need the input element)
+    suggestionsPanel.dataset.suggestions = JSON.stringify(final);
+  }
+
   const inputRow = document.createElement('div');
   Object.assign(inputRow.style, { display: 'flex', gap: '8px', padding: '12px', borderTop: '1px solid rgba(255,255,255,0.02)' });
 
@@ -594,6 +746,18 @@ function openRightChatBox() {
   inputRow.appendChild(input);
   inputRow.appendChild(sendBtn);
   cont.appendChild(inputRow);
+
+  // If suggestions prepared add them right above inputRow
+  if (suggestionsPanel && suggestionsPanel.dataset.suggestions) {
+    const parsed = JSON.parse(suggestionsPanel.dataset.suggestions || '[]');
+    if (parsed && parsed.length) {
+      const container = document.createElement('div');
+      container.style.padding = '0 12px 8px 12px';
+      // NOTE: renderSuggestions will call sendBtn.click() immediately when a suggestion is clicked
+      renderSuggestions(container, parsed, input, () => sendBtn.click());
+      cont.insertBefore(container, inputRow);
+    }
+  }
 
   closeBtn.addEventListener('click', () => cont.remove());
 
