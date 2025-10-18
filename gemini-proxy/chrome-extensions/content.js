@@ -1,4 +1,4 @@
-// === content.js (UI-improved + suggestions for selected words; click-to-send enabled) ===
+// === content.js.. (UI-improved + suggestions for selected words; click-to-send enabled) ===
 // Kept existing functionality, added nicer animations, overlay/backdrop, keyboard shortcuts (Esc), smoother icon drop,
 // improved responsive placement for left icon stack, prompt box open/close animation, small accessibility tweaks,
 // AND: added "Suggested questions" based on the highlighted/selected word.
