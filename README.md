@@ -1,6 +1,10 @@
 # 🌐 **Browzie — Smart Web Companion**  
 > 🧠 _Your all-in-one browser extension for Chat + Webpage Summaries + Instant Insights!_  
 
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=OkBatti&label=Profile%20views&color=0e75b6&style=flat" alt="Profile Views" />
+</p>
+
 ![Banner](https://img.shields.io/badge/Project-Browzie-blue?style=for-the-badge&logo=googlechrome)  
 ![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)  
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)  
