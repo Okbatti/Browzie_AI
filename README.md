@@ -86,3 +86,7 @@ node server.js
 > 🧠 Browse smarter. Summarize faster. Chat effortlessly.  
 
 
+
+docker build -t browzie:latest .
+docker run --rm -p 3000:3000 browzie:latest
+
