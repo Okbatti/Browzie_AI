@@ -2,10 +2,19 @@ version: "3.8"
 
 services:
   browzie:
-    build: .                # 👈 This tells Docker to build from your local Dockerfile
-    image: browzie:latest   # 👈 Optional: name the image after building
+    build: .                    # Builds from the main Dockerfile in Browzie_AI/
+    image: browzie:latest
     ports:
       - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - gemini-proxy            # Waits for gemini-proxy to start first
+    restart: unless-stopped
+
+  gemini-proxy:
+    build: .      # Builds from Dockerfile inside gemini-proxy folder
+    image: gemini-proxy:latest
     env_file:
       - .env
     restart: unless-stopped
