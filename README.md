@@ -87,6 +87,3 @@ node server.js
 
 
 
-docker build -t browzie:latest .
-docker run --rm -p 3000:3000 browzie:latest
-
